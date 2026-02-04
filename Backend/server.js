@@ -12,61 +12,40 @@ app.get("/download", async (req, res) => {
   // You will handle the download logic here
   let fileUrl = req.query.url;
 
+
+  //-----------------------------------------------
   // Validate the URL
   if (!fileUrl) {
     return res.status(400).send("No file URL provided.");
   }
 
-  // Check type of fileUrl
+  // _____________________________________________________
+
+  // SUPPORTED LINKS
 
   // Check if the URL is a Google Docs link
   if (fileUrl.includes("docs.google.com")) {
+    console.log("Google Docs link detected");
     // convert to direct download link
-    fileUrl = fileUrl.replace(/\/edit.*$/, "/export?format=pdf");
+    fileUrl = fileUrl.replace(/\/edit.*$/, "/export?format=docx");
+  }
+  // Check if the URL is a PDF  
+  if (fileUrl.endsWith(".pdf") || fileUrl.includes(".pdf?")) {
+    console.log("PDF link detected");
+    // No conversion needed for direct PDF links
   }
 
-  // Check if the URL is a Google Drive link
-  if (fileUrl.includes("drive.google.com")) {
-    // convert to direct download link
-    fileUrl = fileUrl.replace(
-      /\/file\/d\/(.*?)(\/|$)/,
-      "/uc?id=$1&export=download"
-    );
-  }
 
-  // NOT SUPPORTED YET
-  // Check if the link is youtube link
-  if (
-    fileUrl.includes("youtube.com") ||
-    fileUrl.includes("youtu.be") ||
-    fileUrl.includes("m.youtube.com")
-  ) {
-    return res
-      .status(400)
-      .send("Downloading from YouTube is not supported yet.");
-  } //facebook video link
-  else if (fileUrl.includes("facebook.com")) {
-    return res
-      .status(400)
-      .send("Downloading from Facebook is not supported yet.");
-  } //Tiktok video link
-  else if (fileUrl.includes("tiktok.com")) {
-    return res
-      .status(400)
-      .send("Downloading from TikTok is not supported yet.");
-  } //google drive folder link
-  else if (fileUrl.includes("drive.google.com/folder")) {
-    return res
-      .status(400)
-      .send("Downloading from Google Drive folders is not supported yet.");
-  } else {
-    return res.status(400).send("This URL is not supported yet.");
-  }
+
+
+
+  // --------------------------------------------------------------
+
 
   // start the download process
   console.log(`📥Downloading : ${fileUrl}`);
 
-  //fetch the file from the provided URL and pipe it to the response
+    //fetch the file from the provided URL and pipe it to the response
   try {
     const response = await axios({
       method: "get",
@@ -78,17 +57,16 @@ app.get("/download", async (req, res) => {
     let filename = "downloaded-file";
     // google docs file
     if (fileUrl.includes("docs.google.com")) {
-      filename = "google-doc.pdf";
+      filename = "document.docx";
     } else if (fileUrl.includes("drive.google.com")) {
       filename = "google-drive-file";
     }
-
-    // Set headers to prompt download
+    // Set headers to trigger download
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     // Set the content type based on the response from the original request
     res.setHeader(
       "Content-Type",
-      response.headers["content-type"] || "application/octet-stream"
+      response.headers["content-type"] || "application/octet-stream",
     );
 
     // Pipe the file stream to the response
@@ -106,4 +84,5 @@ app.get("/download", async (req, res) => {
   } catch (error) {
     res.status(500).send("Error downloading file.");
   }
+
 });
