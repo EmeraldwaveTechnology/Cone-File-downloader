@@ -1,12 +1,27 @@
 import express from "express";
 import axios from "axios";
 import ytdl from "ytdl-core";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Get the current directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+
+
 
 const app = express();
 const PORT = 4000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
+//Serve static file from public folder
+
+app.use(express.static(path.join(__dirname,"../public")));
 
 // Endpoint to handle file download requests
 app.get("/download", async (req, res) => {
@@ -72,12 +87,38 @@ app.get("/download", async (req, res) => {
       else filename += ".bin";
   }
 
-  //  Check if the URL is a YouTube link
+  // Check if URL is a youtube
+   if (fileUrl.includes("youtube.com") || fileUrl.includes("youtu.be")) { 
+    console.log("YouTube link detected");
+    return res.status(400).send("Downloading from YouTube is not supported yet.");
+
+   }
+
+  //  Check if URL is a facebook
+    else if (fileUrl.includes("facebook.com")) {
+      console.log("Facebook link detected");
+      return res.status(400).send("Downloading from Facebook is not supported yet.");
+    }
+  
+    // Check if URL is a instagram
+    else if (fileUrl.includes("instagram.com")) {
+      console.log("Instagram link detected");
+      return res.status(400).send("Downloading from Instagram is not supported yet.");
+    }
+  // Check if URL is a twitter
+    else if (fileUrl.includes("twitter.com")) {
+      console.log("Twitter link detected");
+      return res.status(400).send("Downloading from Twitter is not supported yet.");
+    }
+  
+ 
+
+  
 
   // --------------------------------------------------------------
 
 
-  // start the download process
+  // START THE DOWNLOADING PROCESS
   console.log(`📥Downloading : ${fileUrl}`);
 
     //fetch the file from the provided URL and pipe it to the response
