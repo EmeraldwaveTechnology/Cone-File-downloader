@@ -10,8 +10,6 @@ const __dirname = path.dirname(__filename);
 
 
 
-
-
 const app = express();
 const PORT = 4000;
 app.listen(PORT, () => {
@@ -32,9 +30,22 @@ app.get("/download", async (req, res) => {
   //-----------------------------------------------
   // Validate the URL
   if (!fileUrl) {
-    return res.status(400).send("No file URL provided.");
+    return res.status(400).send("Invalid URL.");
   }
 
+  // Function to check if a string is valid URL
+  function isValidUrl(string) {
+    try {
+      new URL(string);
+      return true;
+    } catch  {
+      return false;
+    }
+  }
+  if (!isValidUrl(fileUrl)) {
+    return res.status(400).send("Invalid URL. Please enter a valid URL statrting with http:// or https://");
+  }
+   
   // _____________________________________________________
 
   // SUPPORTED LINKS
